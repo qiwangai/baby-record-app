@@ -12,13 +12,17 @@
 
 /* Homepage fidelity pass: tuned against the supplied mobile reference. */
 .statusBar {
-  height: 62px;
-  padding: 18px 26px 0;
-  font-size: 18px;
+  display: none;
 }
 
 .appSurface {
-  height: calc(100% - 62px - 88px);
+  height: calc(100% - 88px);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.appSurface::-webkit-scrollbar {
+  display: none;
 }
 
 .header {
@@ -33,7 +37,8 @@
 }
 
 .screenBody {
-  height: calc(100% - 92px);
+  height: auto;
+  overflow: visible;
   padding: 14px 24px 46px;
 }
 
@@ -123,14 +128,7 @@
 }
 
 .statusBar {
-  height: 54px;
-  padding: 16px 26px 0;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  font-size: 18px;
-  font-weight: 700;
-  color: #2d2825;
+  display: none;
 }
 
 .statusIcons {
@@ -139,8 +137,13 @@
 }
 
 .appSurface {
-  height: calc(100% - 54px - 86px);
-  overflow: hidden;
+  height: calc(100% - 86px);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.appSurface::-webkit-scrollbar {
+  display: none;
 }
 
 .header {
@@ -175,8 +178,8 @@
 }
 
 .screenBody {
-  height: calc(100% - 78px);
-  overflow-y: auto;
+  height: auto;
+  overflow: visible;
   padding: 18px 18px 38px;
   scrollbar-width: none;
 }
@@ -551,14 +554,15 @@
 }
 
 .datePill {
-  height: 62px;
-  min-width: 138px;
-  border-radius: 18px;
-  background: #eeeeee;
-  display: grid;
-  place-items: center;
+  height: auto;
+  min-width: 0;
+  border-radius: 0;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
   white-space: nowrap;
-  padding: 0 14px;
+  padding: 0;
   font-size: 18px;
   color: #69615d;
 }
@@ -1097,13 +1101,13 @@
 
 /* Final homepage fidelity overrides. Keep this block last. */
 .statusBar {
-  height: 62px;
-  padding: 18px 26px 0;
-  font-size: 18px;
+  display: none;
 }
 
 .appSurface {
-  height: calc(100% - 62px - 88px);
+  height: calc(100% - 88px);
+  overflow-y: auto;
+  scrollbar-width: none;
 }
 
 .header {
@@ -1117,7 +1121,8 @@
 }
 
 .screenBody {
-  height: calc(100% - 92px);
+  height: auto;
+  overflow: visible;
   padding: 14px 24px 46px;
 }
 

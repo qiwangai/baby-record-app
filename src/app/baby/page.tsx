@@ -136,13 +136,14 @@ const initialState: BabyAppState = {
 const babyInlineCss = `
 [class*="pageShell"]{height:100vh;overflow:hidden;background:#eee8e4;display:flex;align-items:center;justify-content:center;padding:20px;color:#201b18;font-family:Arial,"PingFang SC","Microsoft YaHei",sans-serif}
 [class*="phoneFrame"]{position:relative;width:min(100vw,430px);height:min(100vh,932px);background:#fff7f5;overflow:hidden;box-shadow:0 30px 90px rgba(91,61,45,.22)}
-[class*="statusBar"]{height:54px;padding:16px 26px 0;display:flex;align-items:flex-start;justify-content:space-between;font-size:18px;font-weight:700;color:#2d2825}
+[class*="statusBar"]{display:none}
 [class*="statusIcons"]{font-size:15px;letter-spacing:1px}
-[class*="appSurface"]{height:calc(100% - 54px - 86px);overflow:hidden}
+[class*="appSurface"]{height:calc(100% - 86px);overflow-y:auto;scrollbar-width:none}
+[class*="appSurface"]::-webkit-scrollbar{display:none}
 [class*="header"]{height:78px;padding:0 26px;position:relative;display:flex;align-items:center;justify-content:center}
 [class*="header"] h1{position:absolute;left:50%;transform:translateX(-50%);text-align:center;font-size:30px;font-weight:500;line-height:1;max-width:180px;white-space:nowrap}
 [class*="headerRight"]{position:absolute;right:24px;min-width:0;color:#4d433e;display:flex;align-items:center;justify-content:flex-end}
-[class*="screenBody"]{height:calc(100% - 78px);overflow-y:auto;padding:18px 18px 38px;scrollbar-width:none}
+[class*="screenBody"]{height:auto;overflow:visible;padding:18px 18px 38px;scrollbar-width:none}
 [class*="screenBody"]::-webkit-scrollbar{display:none}
 [class*="card"],[class*="metricCard"],[class*="typeCard"],[class*="statCard"],[class*="listCard"],[class*="historyCard"],[class*="settingsList"],[class*="expenseItem"]{border-radius:8px;box-shadow:0 8px 24px rgba(106,69,47,.06)}
 [class*="card"]{background:#fff0ec}
@@ -194,7 +195,7 @@ const babyInlineCss = `
 [class*="typeGrid"]{display:grid;grid-template-columns:1fr 1fr;gap:24px}
 [class*="typeCard"]{border:0;min-height:108px;background:#fff5f2;color:#1f1a17;display:grid;place-content:center;gap:12px;font-size:21px}
 [class*="historyCard"],[class*="listCard"],[class*="settingsList"]{background:rgba(255,255,255,.78);padding:18px}
-[class*="datePill"]{height:62px;min-width:138px;border-radius:18px;background:#eee;display:grid;place-items:center;padding:0 14px;font-size:18px;color:#69615d;white-space:nowrap}
+[class*="datePill"]{height:auto;min-width:0;border-radius:0;background:transparent;display:inline-flex;align-items:center;justify-content:flex-end;padding:0;font-size:18px;color:#69615d;white-space:nowrap}
 [class*="statGrid"]{margin-bottom:26px}
 [class*="statCard"]{min-height:134px;padding:22px 20px;overflow:hidden}
 [class*="statCard"] strong{font-size:34px}
@@ -262,11 +263,11 @@ const babyInlineCss = `
 [class*="formStack"] input:focus,[class*="formStack"] select:focus{border-color:#a96231;box-shadow:0 0 0 3px rgba(169,98,49,.14)}
 [class*="submitButton"]{height:52px;border:0;border-radius:8px;background:#9f592b;color:#fff;font-size:19px;font-weight:800;margin-top:6px}
 @media(max-width:520px){[class*="pageShell"]{display:block;padding:0;background:#fff7f5}[class*="phoneFrame"]{width:100vw;height:100vh;box-shadow:none}[class*="header"] h1{font-size:28px}[class*="screenBody"]{padding-left:18px;padding-right:18px}}
-[class*="statusBar"]{height:62px;padding:18px 26px 0;font-size:18px}
-[class*="appSurface"]{height:calc(100% - 62px - 88px)}
+[class*="statusBar"]{display:none}
+[class*="appSurface"]{height:calc(100% - 88px);overflow-y:auto;scrollbar-width:none}
 [class*="header"]{height:92px;padding:0 24px}
 [class*="header"] h1{font-size:28px;font-weight:600}
-[class*="screenBody"]{height:calc(100% - 92px);padding:14px 24px 46px}
+[class*="screenBody"]{height:auto;overflow:visible;padding:14px 24px 46px}
 [class*="profileSummary"]{min-height:112px;padding:20px;grid-template-columns:72px minmax(160px,1fr) auto;gap:12px;background:#fff1ed}
 [class*="babyAvatar"]{width:72px;height:72px}
 [class*="profileSummary"] h2{font-size:25px;margin-bottom:8px}
@@ -375,15 +376,6 @@ function loadState(): BabyAppState {
   } catch {
     return initialState;
   }
-}
-
-function PhoneStatus() {
-  return (
-    <div className={styles.statusBar} aria-hidden="true">
-      <span>{currentTime()}</span>
-      <span className={styles.statusIcons}>◉  ᯤ  100%</span>
-    </div>
-  );
 }
 
 function Header({ title, right }: { title: string; right?: ReactNode }) {
@@ -1556,7 +1548,6 @@ export default function BabyAppPage() {
     <div className={styles.pageShell}>
       <style dangerouslySetInnerHTML={{ __html: babyInlineCss }} />
       <div className={styles.phoneFrame}>
-        <PhoneStatus />
         <div className={styles.appSurface}>{page}</div>
         <BottomNav tab={tab} setTab={setTab} />
         <BabyModal modal={modal} state={state} setState={setState} close={() => setModal(null)} />
