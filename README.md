@@ -24,7 +24,7 @@ http://localhost:3010/baby
 发布地址：
 
 ```text
-https://qiwangai.github.io/baby-record-app/baby
+https://qiwangai.github.io/baby-record-app/baby/
 ```
 
 ### Vercel
