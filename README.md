@@ -17,7 +17,19 @@ http://localhost:3010/baby
 
 ## 上线
 
-推荐用 Vercel：
+### GitHub Pages
+
+这个项目已经配置了 GitHub Pages 自动部署。推送到 `main` 后，GitHub Actions 会自动构建并发布。
+
+发布地址：
+
+```text
+https://qiwangai.github.io/baby-record-app/baby
+```
+
+### Vercel
+
+也可以用 Vercel：
 
 1. 把这个文件夹上传到 GitHub。
 2. 在 Vercel 导入项目。

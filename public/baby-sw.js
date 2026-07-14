@@ -1,5 +1,7 @@
 const CACHE_NAME = "baby-record-v1";
-const APP_SHELL = ["/baby", "/baby-manifest.json", "/baby-icon.svg"];
+const scopePath = new URL(self.registration.scope).pathname.replace(/\/$/, "");
+const BASE_PATH = scopePath === "" ? "" : scopePath;
+const APP_SHELL = [`${BASE_PATH}/baby`, `${BASE_PATH}/manifest.webmanifest`, `${BASE_PATH}/baby-icon.svg`];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
@@ -17,7 +19,8 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const requestUrl = new URL(event.request.url);
-  if (requestUrl.origin !== self.location.origin || !requestUrl.pathname.startsWith("/baby")) return;
+  if (requestUrl.origin !== self.location.origin) return;
+  if (!requestUrl.pathname.startsWith(`${BASE_PATH}/baby`) && !requestUrl.pathname.startsWith(`${BASE_PATH}/_next`)) return;
 
   event.respondWith(
     caches.match(event.request).then((cached) => {

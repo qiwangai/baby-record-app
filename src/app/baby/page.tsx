@@ -1357,7 +1357,8 @@ export default function BabyAppPage() {
       setTab(requestedTab as TabKey);
     }
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/baby-sw.js").catch(() => undefined);
+      const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+      navigator.serviceWorker.register(`${basePath}/baby-sw.js`, { scope: `${basePath || "/"}` }).catch(() => undefined);
     }
     setLoaded(true);
   }, []);
