@@ -379,13 +379,9 @@ function loadState(): BabyAppState {
 }
 
 function Header({ title, right }: { title: string; right?: ReactNode }) {
-  return (
-    <header className={styles.header}>
-      <div />
-      <h1>{title}</h1>
-      <div className={styles.headerRight}>{right}</div>
-    </header>
-  );
+  void title;
+  void right;
+  return null;
 }
 
 function BottomNav({ tab, setTab }: { tab: TabKey; setTab: (tab: TabKey) => void }) {
