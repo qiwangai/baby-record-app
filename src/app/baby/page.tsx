@@ -9,7 +9,9 @@ import {
   Clock3,
   Coffee,
   CupSoda,
+  Download,
   Edit3,
+  FileText,
   Home,
   Moon,
   Package,
@@ -33,7 +35,7 @@ type TabKey = "home" | "feed" | "expense" | "growth" | "sleep" | "profile";
 type TimerKind = "feed" | "sleep";
 type FeedKind = "母乳" | "配方奶" | "辅食";
 type FeedSide = "左侧" | "右侧";
-type ModalKey = "formula" | "solid" | "sleep" | "expense" | "growth" | "profile" | "reminders" | null;
+type ModalKey = "formula" | "solid" | "sleep" | "expense" | "growth" | "daily" | "profile" | "reminders" | null;
 
 type BabyProfile = {
   parentName: string;
@@ -94,6 +96,24 @@ type Activity = {
   sub?: string;
   color: "orange" | "blue" | "green";
   sortAt: number;
+};
+
+type DailyReportItem = {
+  id: string;
+  time: string;
+  category: string;
+  title: string;
+  detail: string;
+  sortAt: number;
+};
+
+type DailyReport = {
+  date: string;
+  items: DailyReportItem[];
+  feedCount: number;
+  sleepMinutes: number;
+  expenseTotal: number;
+  growthCount: number;
 };
 
 const STORAGE_KEY = "baby-care-app-state-v3";
@@ -261,7 +281,14 @@ const babyInlineCss = `
 [class*="formStack"] label{display:grid;gap:8px;color:#5d5049;font-size:16px;font-weight:700}
 [class*="formStack"] input,[class*="formStack"] select{width:100%;min-height:48px;border:1px solid #e5d7cf;border-radius:8px;background:#fff;color:#211b18;font-size:18px;padding:0 14px;outline:none}
 [class*="formStack"] input:focus,[class*="formStack"] select:focus{border-color:#a96231;box-shadow:0 0 0 3px rgba(169,98,49,.14)}
-[class*="submitButton"]{height:52px;border:0;border-radius:8px;background:#9f592b;color:#fff;font-size:19px;font-weight:800;margin-top:6px}
+[class*="submitButton"]{height:52px;border:0;border-radius:8px;background:#9f592b;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px;font-size:19px;font-weight:800;margin-top:6px}
+[class*="reportSummary"]{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+[class*="reportSummary"] span{min-height:48px;border-radius:8px;background:#fff1de;color:#7d4a27;display:grid;place-items:center;padding:8px;font-size:15px;font-weight:800;text-align:center}
+[class*="reportList"]{display:grid;gap:10px;max-height:260px;overflow-y:auto;padding-right:2px}
+[class*="reportItem"]{display:grid;grid-template-columns:72px minmax(0,1fr);gap:10px;padding:12px;border-radius:8px;background:rgba(255,255,255,.78)}
+[class*="reportItem"]>span{color:#9f592b;font-weight:800;font-size:15px}
+[class*="reportItem"] strong{display:block;font-size:16px}
+[class*="reportItem"] p{margin-top:6px;color:#6f6762;font-size:14px;line-height:1.35}
 @media(max-width:520px){[class*="pageShell"]{display:block;padding:0;background:#fff7f5}[class*="phoneFrame"]{width:100vw;height:100vh;box-shadow:none}[class*="header"] h1{font-size:28px}[class*="screenBody"]{padding-left:18px;padding-right:18px}}
 [class*="statusBar"]{display:none}
 [class*="appSurface"]{height:calc(100% - 88px);overflow-y:auto;scrollbar-width:none}
@@ -359,6 +386,23 @@ function timestampForDate(date: string) {
 
 function sortStamp(id: number, fallback: number) {
   return id > 1_000_000_000_000 ? id : fallback;
+}
+
+function dateFromId(id: number) {
+  if (id > 1_000_000_000_000) return new Date(id).toISOString().slice(0, 10);
+  return todayDate();
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function fileSafeDate(date: string) {
+  return date.replaceAll("-", "");
 }
 
 function babyAgeDays(birthday: string) {
@@ -984,6 +1028,13 @@ function ProfilePage({
         </div>
         <SectionTitle title="交接工具" />
         <div className={styles.dangerZone}>
+          <button type="button" onClick={() => openModal("daily")}>
+            <FileText size={22} />
+            <span>
+              <strong>每日动态与导出</strong>
+              <em>按日期查看宝宝记录，并导出 Word 文件用于交接</em>
+            </span>
+          </button>
           <button type="button" onClick={onClearRecords}>
             <Trash2 size={22} />
             <span>
@@ -1045,6 +1096,117 @@ function expenseToActivity(expense: ExpenseRecord): Activity {
   };
 }
 
+function buildDailyReport(state: BabyAppState, date: string): DailyReport {
+  const feeds = state.feeds.filter((feed) => dateFromId(feed.id) === date);
+  const sleeps = state.sleeps.filter((sleep) => dateFromId(sleep.id) === date);
+  const expenses = state.expenses.filter((expense) => expense.date === date);
+  const growth = state.growth.filter((item) => item.date === date);
+  const items: DailyReportItem[] = [
+    ...feeds.map((feed) => {
+      const activity = feedToActivity(feed);
+      return {
+        id: activity.id,
+        time: activity.time,
+        category: activity.type,
+        title: feed.kind,
+        detail: [activity.detail, activity.sub].filter(Boolean).join("，"),
+        sortAt: activity.sortAt,
+      };
+    }),
+    ...sleeps.map((sleep) => ({
+      id: `sleep-${sleep.id}`,
+      time: `${sleep.startTime}-${sleep.endTime}`,
+      category: "睡眠",
+      title: sleep.note,
+      detail: formatMinutes(sleep.minutes),
+      sortAt: sortStamp(sleep.id, timestampForTodayTime(sleep.startTime)),
+    })),
+    ...expenses.map((expense) => ({
+      id: `expense-${expense.id}`,
+      time: expense.date.slice(5),
+      category: "消费",
+      title: expense.name,
+      detail: `${expense.category}，¥ ${expense.amount}`,
+      sortAt: sortStamp(expense.id, timestampForDate(expense.date)),
+    })),
+    ...growth.map((item) => ({
+      id: `growth-${item.id}`,
+      time: item.date.slice(5),
+      category: "成长",
+      title: "生长数据",
+      detail: `身高 ${item.height} cm，体重 ${item.weight} kg`,
+      sortAt: sortStamp(item.id, timestampForDate(item.date)),
+    })),
+  ].sort((a, b) => b.sortAt - a.sortAt);
+
+  return {
+    date,
+    items,
+    feedCount: feeds.length,
+    sleepMinutes: sleeps.reduce((sum, sleep) => sum + sleep.minutes, 0),
+    expenseTotal: expenses.reduce((sum, expense) => sum + expense.amount, 0),
+    growthCount: growth.length,
+  };
+}
+
+function exportDailyReportWord(state: BabyAppState, report: DailyReport) {
+  const rows = report.items
+    .map(
+      (item) => `
+        <tr>
+          <td>${escapeHtml(item.time)}</td>
+          <td>${escapeHtml(item.category)}</td>
+          <td>${escapeHtml(item.title)}</td>
+          <td>${escapeHtml(item.detail)}</td>
+        </tr>
+      `,
+    )
+    .join("");
+  const html = `
+    <!doctype html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>${escapeHtml(state.profile.babyName)}每日动态</title>
+        <style>
+          body { font-family: "Microsoft YaHei", Arial, sans-serif; color: #1f1a17; }
+          h1 { font-size: 24px; }
+          h2 { font-size: 18px; margin-top: 24px; }
+          p { line-height: 1.6; }
+          table { border-collapse: collapse; width: 100%; margin-top: 12px; }
+          th, td { border: 1px solid #d8ccc5; padding: 8px 10px; text-align: left; }
+          th { background: #fff1de; }
+        </style>
+      </head>
+      <body>
+        <h1>${escapeHtml(state.profile.babyName)}每日动态记录</h1>
+        <p>日期：${escapeHtml(report.date)}</p>
+        <p>宝宝：${escapeHtml(state.profile.babyName)}　性别：${escapeHtml(state.profile.gender)}　出生年月：${escapeHtml(state.profile.birthday)}</p>
+        <h2>今日摘要</h2>
+        <p>喂养 ${report.feedCount} 次；睡眠 ${formatMinutes(report.sleepMinutes)}；消费 ¥ ${report.expenseTotal}；成长记录 ${report.growthCount} 条。</p>
+        <h2>详细记录</h2>
+        <table>
+          <thead>
+            <tr><th>时间</th><th>类型</th><th>项目</th><th>详情</th></tr>
+          </thead>
+          <tbody>
+            ${rows || `<tr><td colspan="4">当天暂无记录</td></tr>`}
+          </tbody>
+        </table>
+      </body>
+    </html>
+  `;
+  const blob = new Blob(["\ufeff", html], { type: "application/msword;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${state.profile.babyName}-每日动态-${fileSafeDate(report.date)}.doc`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
 function BabyModal({
   modal,
   state,
@@ -1061,6 +1223,7 @@ function BabyModal({
     sleepHours: "",
     sleepNote: "小睡",
     sleepEndTime: currentTime(),
+    dailyDate: todayDate(),
     food: "米粉",
     expenseName: "",
     expenseCategory: "日用",
@@ -1187,9 +1350,51 @@ function BabyModal({
     sleep: "手动补录睡眠",
     expense: "添加消费记录",
     growth: "添加生长数据",
+    daily: "每日动态记录",
     profile: "编辑资料",
     reminders: "编辑提醒",
   };
+
+  const dailyReport = buildDailyReport(state, form.dailyDate || todayDate());
+
+  if (modal === "daily") {
+    return (
+      <Modal title={titleMap[modal]} onClose={close}>
+        <div className={styles.formStack}>
+          <label>
+            查看日期
+            <input type="date" value={form.dailyDate} onChange={(event) => updateForm("dailyDate", event.target.value)} />
+          </label>
+          <div className={styles.reportSummary}>
+            <span>喂养 {dailyReport.feedCount} 次</span>
+            <span>睡眠 {formatMinutes(dailyReport.sleepMinutes)}</span>
+            <span>消费 ¥ {dailyReport.expenseTotal}</span>
+            <span>成长 {dailyReport.growthCount} 条</span>
+          </div>
+          <div className={styles.reportList}>
+            {dailyReport.items.length ? (
+              dailyReport.items.map((item) => (
+                <div className={styles.reportItem} key={item.id}>
+                  <span>{item.time}</span>
+                  <div>
+                    <strong>
+                      {item.category} · {item.title}
+                    </strong>
+                    <p>{item.detail}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className={styles.emptyBox}>这一天还没有记录。</div>
+            )}
+          </div>
+          <button className={styles.submitButton} type="button" onClick={() => exportDailyReportWord(state, dailyReport)}>
+            <Download size={20} /> 导出 Word
+          </button>
+        </div>
+      </Modal>
+    );
+  }
 
   return (
     <Modal title={titleMap[modal]} onClose={close}>

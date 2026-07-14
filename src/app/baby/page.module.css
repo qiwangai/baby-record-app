@@ -1048,9 +1048,67 @@
   border-radius: 8px;
   background: #9f592b;
   color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   font-size: 19px;
   font-weight: 800;
   margin-top: 6px;
+}
+
+.reportSummary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.reportSummary span {
+  min-height: 48px;
+  border-radius: 8px;
+  background: #fff1de;
+  color: #7d4a27;
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  font-size: 15px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.reportList {
+  display: grid;
+  gap: 10px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.reportItem {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.reportItem > span {
+  color: #9f592b;
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.reportItem strong {
+  display: block;
+  font-size: 16px;
+}
+
+.reportItem p {
+  margin-top: 6px;
+  color: #6f6762;
+  font-size: 14px;
+  line-height: 1.35;
 }
 
 @media (max-width: 520px) {
