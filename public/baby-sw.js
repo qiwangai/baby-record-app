@@ -1,4 +1,4 @@
-const CACHE_NAME = "baby-record-v3";
+const CACHE_NAME = "baby-record-v4";
 const scopePath = new URL(self.registration.scope).pathname.replace(/\/$/, "");
 const BASE_PATH = scopePath === "" ? "" : scopePath;
 const APP_SHELL = [
