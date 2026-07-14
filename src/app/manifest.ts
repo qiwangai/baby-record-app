@@ -16,9 +16,15 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["health", "lifestyle", "productivity"],
     icons: [
       {
-        src: `${basePath}/baby-icon.svg`,
-        sizes: "any",
-        type: "image/svg+xml",
+        src: `${basePath}/baby-icon-192.png`,
+        sizes: "192x192",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
+        src: `${basePath}/baby-icon-512.png`,
+        sizes: "512x512",
+        type: "image/png",
         purpose: "maskable",
       },
     ],
@@ -27,13 +33,13 @@ export default function manifest(): MetadataRoute.Manifest {
         name: "记录喂养",
         short_name: "喂养",
         url: `${basePath}/baby/?tab=feed`,
-        icons: [{ src: `${basePath}/baby-icon.svg`, sizes: "any", type: "image/svg+xml" }],
+        icons: [{ src: `${basePath}/baby-icon-192.png`, sizes: "192x192", type: "image/png" }],
       },
       {
         name: "记录睡眠",
         short_name: "睡眠",
         url: `${basePath}/baby/?tab=sleep`,
-        icons: [{ src: `${basePath}/baby-icon.svg`, sizes: "any", type: "image/svg+xml" }],
+        icons: [{ src: `${basePath}/baby-icon-192.png`, sizes: "192x192", type: "image/png" }],
       },
     ],
   };

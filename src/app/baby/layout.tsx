@@ -12,8 +12,11 @@ export const metadata: Metadata = {
     title: "宝宝记录",
   },
   icons: {
-    icon: `${basePath}/baby-icon.svg`,
-    apple: `${basePath}/baby-icon.svg`,
+    icon: [
+      { url: `${basePath}/baby-icon-192.png`, sizes: "192x192", type: "image/png" },
+      { url: `${basePath}/baby-icon-512.png`, sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: `${basePath}/apple-touch-icon.png`, sizes: "180x180", type: "image/png" }],
   },
 };
 

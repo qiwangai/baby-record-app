@@ -1,7 +1,13 @@
-const CACHE_NAME = "baby-record-v1";
+const CACHE_NAME = "baby-record-v2";
 const scopePath = new URL(self.registration.scope).pathname.replace(/\/$/, "");
 const BASE_PATH = scopePath === "" ? "" : scopePath;
-const APP_SHELL = [`${BASE_PATH}/baby/`, `${BASE_PATH}/manifest.webmanifest`, `${BASE_PATH}/baby-icon.svg`];
+const APP_SHELL = [
+  `${BASE_PATH}/baby/`,
+  `${BASE_PATH}/manifest.webmanifest`,
+  `${BASE_PATH}/apple-touch-icon.png`,
+  `${BASE_PATH}/baby-icon-192.png`,
+  `${BASE_PATH}/baby-icon-512.png`,
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));

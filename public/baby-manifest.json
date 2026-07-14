@@ -14,7 +14,19 @@
       "src": "/baby-icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/baby-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/baby-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "shortcuts": [
@@ -22,13 +34,13 @@
       "name": "记录喂养",
       "short_name": "喂养",
       "url": "/baby?tab=feed",
-      "icons": [{ "src": "/baby-icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+      "icons": [{ "src": "/baby-icon-192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
       "name": "记录睡眠",
       "short_name": "睡眠",
       "url": "/baby?tab=sleep",
-      "icons": [{ "src": "/baby-icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+      "icons": [{ "src": "/baby-icon-192.png", "sizes": "192x192", "type": "image/png" }]
     }
   ]
 }
